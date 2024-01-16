@@ -23,7 +23,8 @@ namespace Pluralsight.AzureFuncs
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
-            response.WriteString("Welcome to Azure Functions!");
+            var name = req.Query.Get("name") ?? "Anonymous";
+            response.WriteString($"Welcome {name}!");
 
             return response;
         }
