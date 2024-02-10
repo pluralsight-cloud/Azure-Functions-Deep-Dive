@@ -25,6 +25,7 @@ namespace Pluralsight.AzureFuncs
 
             //var body = await req.ReadAsStringAsync();
             var order = await req.ReadFromJsonAsync<NewOrderWebhook>();
+            if (order == null) throw new ArgumentException("body was not deserializable as NewOrderWebhook");
 
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
