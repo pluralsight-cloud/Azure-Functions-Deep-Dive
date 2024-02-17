@@ -1,4 +1,5 @@
 using System;
+using Azure.Storage.Blobs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -14,14 +15,25 @@ namespace Pluralsight.AzureFuncs
         }
 
         [Function("CreateNightlyReport")]
-        public void Run([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer,
+            [BlobInput("tickets", Connection ="AzureWebJobsStorage")] BlobContainerClient ticketsClient)
         {
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
             
-            if (myTimer.ScheduleStatus is not null)
+            await foreach(var f in ticketsClient.GetBlobsAsync())
             {
-                _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
+                var blob = ticketsClient.GetBlobClient(f.Name);
+                var props = await blob.GetPropertiesAsync();
+                if (DateTime.Now > props.Value.CreatedOn.AddDays(1))
+                {
+                    await blob.DeleteAsync();
+                }
+                else
+                {
+                    _logger.LogInformation($"Received order {f.Name}");
+                }
             }
+
         }
     }
 }
