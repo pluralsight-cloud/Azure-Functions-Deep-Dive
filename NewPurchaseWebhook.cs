@@ -36,6 +36,7 @@ namespace Pluralsight.AzureFuncs
             if (order == null) throw new ArgumentException("body was not deserializable as NewOrderWebhook");
 
             var message = new NewOrderMessage(
+                    Guid.NewGuid(), // order id
 	                order.productId, 
 	                order.quantity,
 	                order.customerName, 

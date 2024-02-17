@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Pluralsight.AzureFuncs
 {
-    public record NewOrderMessage(int productId, int quantity, string customerName, 
-        string customerEmail, decimal purchasePrice);
+    public record NewOrderMessage(Guid orderId, int productId, int quantity, 
+        string customerName, string customerEmail, decimal purchasePrice);
 
     public class ProcessNewOrder
     {
@@ -18,10 +18,14 @@ namespace Pluralsight.AzureFuncs
         }
 
         [Function(nameof(ProcessNewOrder))]
-        public void Run([QueueTrigger("neworders", Connection = "AzureWebJobsStorage")] 
+        [BlobOutput("tickets/{orderId}.txt", Connection = "AzureWebJobsStorage")]
+        public string Run([QueueTrigger("neworders", Connection = "AzureWebJobsStorage")] 
             NewOrderMessage message)
         {
-            _logger.LogInformation($"C# Queue trigger function processed: {message.customerName} bought {message.productId}");
+            var description = $"Order {message.orderId}: " + 
+                $"{message.customerName} bought {message.productId}";
+            _logger.LogInformation(description);
+            return description;
         }
     }
 }
