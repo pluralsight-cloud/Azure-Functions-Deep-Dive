@@ -1,4 +1,6 @@
 using System.Net;
+using Azure;
+using Azure.Storage.Blobs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -57,16 +59,25 @@ namespace Pluralsight.AzureFuncs
 
         [Function(nameof(GetPurchase))]
         public HttpResponseData GetPurchase(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route="purchase")] HttpRequestData req)
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route="purchase/{orderId:guid}")] HttpRequestData req,
+            [BlobInput("tickets/{orderId}.txt", Connection = "AzureWebJobsStorage")] BlobClient ticketClient,
+            Guid orderId)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
+            _logger.LogInformation($"Requested details of {orderId}");
 
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
-            var userAgent = req.Headers.GetValues("User-Agent").FirstOrDefault() ?? "Unknown";
-            var name = req.Query.Get("name") ?? "Anonymous";
-            response.WriteString($"Welcome {name} using {userAgent}!");
+            try
+            {
+                var ticketContents = ticketClient.DownloadContent().Value.Content.ToString();
+                response.WriteString(ticketContents);
+            }
+            catch (RequestFailedException rfe) when (rfe.ErrorCode == "BlobNotFound")
+            {
+                _logger.LogError(rfe, $"Order {orderId} does not exist");
+                return req.CreateResponse(HttpStatusCode.NotFound);
+            }
 
             return response;
         }

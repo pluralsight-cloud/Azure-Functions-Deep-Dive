@@ -7,3 +7,7 @@ POST http://localhost:7071/api/purchase
     "customerEmail": "mark@example.com",
     "purchasePrice": 100.00
  }
+
+####
+
+GET http://localhost:7071/api/purchase/ad7d2194-55ce-49c5-900c-fca374b311c9
