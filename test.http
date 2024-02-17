@@ -1,7 +1,7 @@
 POST http://localhost:7071/api/purchase
     
 {
-    "productId": 1234,
+    "productId": 2000,
     "quantity": 1,
     "customerName": "Mark",
     "customerEmail": "mark@example.com",

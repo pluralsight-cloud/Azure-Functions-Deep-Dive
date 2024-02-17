@@ -5,6 +5,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Pluralsight.AzureFuncs
 {
+    public class NewPurchaseWebhookResponse
+    {
+        [QueueOutput("neworders", Connection = "AzureWebJobsStorage")]
+        public NewOrderMessage? Message { get; set; }
+        public HttpResponseData? HttpResponse { get; set; }
+    }
+
+
     public class NewPurchaseWebhook
     {
         private readonly ILogger _logger;
@@ -18,7 +26,7 @@ namespace Pluralsight.AzureFuncs
             string customerName, string customerEmail, decimal purchasePrice);
 
         [Function(nameof(NewPurchaseWebhook))]
-        public async Task<HttpResponseData> Run(
+        public async Task<NewPurchaseWebhookResponse> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route="purchase")] HttpRequestData req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
@@ -27,12 +35,23 @@ namespace Pluralsight.AzureFuncs
             var order = await req.ReadFromJsonAsync<NewOrderWebhook>();
             if (order == null) throw new ArgumentException("body was not deserializable as NewOrderWebhook");
 
+            var message = new NewOrderMessage(
+	                order.productId, 
+	                order.quantity,
+	                order.customerName, 
+	                order.customerEmail, 
+                order.purchasePrice);
+
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
             response.WriteString($"{order.customerName} purchased product {order.productId}!");
 
-            return response;
+            return new NewPurchaseWebhookResponse
+            {
+                Message = message,
+                HttpResponse = response
+            };
         }
 
         [Function(nameof(GetPurchase))]
