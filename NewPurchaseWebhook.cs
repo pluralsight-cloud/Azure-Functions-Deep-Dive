@@ -12,6 +12,8 @@ namespace Pluralsight.AzureFuncs
         [QueueOutput("neworders", Connection = "AzureWebJobsStorage")]
         public NewOrderMessage? Message { get; set; }
         public HttpResponseData? HttpResponse { get; set; }
+        [CosmosDBOutput("azurefuncs","orders",Connection ="CosmosDbConnection")]
+        public OrderDocument? OrderDocument { get; set; }
     }
 
 
@@ -45,6 +47,15 @@ namespace Pluralsight.AzureFuncs
 	                order.customerEmail, 
                 order.purchasePrice);
 
+            var document = new OrderDocument() {
+                id = message.orderId.ToString(),
+                productId = order.productId,
+                quantity = order.quantity,
+                customerEmail = order.customerEmail,
+                customerName = order.customerName,
+                purchasePrice = order.purchasePrice
+            };
+
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
@@ -53,7 +64,8 @@ namespace Pluralsight.AzureFuncs
             return new NewPurchaseWebhookResponse
             {
                 Message = message,
-                HttpResponse = response
+                HttpResponse = response,
+                OrderDocument = document
             };
         }
 
