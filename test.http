@@ -11,3 +11,7 @@ POST http://localhost:7071/api/purchase
 ####
 
 GET http://localhost:7071/api/purchase/ad7d2194-55ce-49c5-900c-fca374b311c9
+
+####
+
+GET http://localhost:7071/api/NewOrderOrchestration_HttpStart
