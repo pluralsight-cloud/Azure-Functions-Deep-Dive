@@ -12,6 +12,19 @@ POST http://localhost:7071/api/purchase
 
 GET http://localhost:7071/api/purchase/ad7d2194-55ce-49c5-900c-fca374b311c9
 
-####
+#### Start a new orchestration
 
-GET http://localhost:7071/api/NewOrderOrchestration_HttpStart
+GET http://localhost:7071/api/NewOrderOrchestration_HttpStart?price=800
+
+#### Send an external event (change the orchestration id)
+
+POST http://localhost:7071/api/NewOrderOrchestration_Approve?id=23ba17cd3ee1429292590eff73c533e6
+
+{
+    "IsApproved": true,
+    "ApprovedBy": "Mark"
+}
+
+### Check on a specific instance (change the orchestration id and add the security key)
+
+GET http://localhost:7071/runtime/webhooks/durabletask/instances/ec4816a105f34b26afff849604e875d2?code=YOUR_CODE_HERE
