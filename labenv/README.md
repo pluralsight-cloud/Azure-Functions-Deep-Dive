@@ -1,0 +1,1 @@
+This folder contains resources for populating the hands-on lab environment for sections 7 and 8, including the ARM template that sets up the environment.
