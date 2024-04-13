@@ -20,6 +20,12 @@ namespace Pluralsight.AzureFuncs
         {
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
             
+            if (!await ticketsClient.ExistsAsync())
+            {
+                // might not exist when running in lab environment
+                return;
+            }
+
             await foreach(var f in ticketsClient.GetBlobsAsync())
             {
                 var blob = ticketsClient.GetBlobClient(f.Name);

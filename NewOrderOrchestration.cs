@@ -87,7 +87,7 @@ namespace Pluralsight.AzureFuncs
 
         [Function("NewOrderOrchestration_HttpStart")]
         public static async Task<HttpResponseData> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequestData req,
             [DurableClient] DurableTaskClient client,
             FunctionContext executionContext)
         {
@@ -114,7 +114,7 @@ namespace Pluralsight.AzureFuncs
 
         [Function("NewOrderOrchestration_Approve")]
         public static async Task<HttpResponseData> Approve(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
             [DurableClient] DurableTaskClient client,
             FunctionContext executionContext)
         {
